@@ -1,15 +1,12 @@
-package com.lqx.simple;
+package com.lqx.fair;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
 public class Sender {
     //设置队列名称
-    public static final String QUEUE_NAME = "hello";
+    public static final String QUEUE_NAME = "fair";
 
     public static void main(String[] args) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
@@ -29,14 +26,17 @@ public class Sender {
 
         //获取通道对象
         Channel channel = connection.createChannel();
-
+        //设置消息队列一次只能发送一条消息
+        channel.basicQos(1);
         //声明队列
         channel.queueDeclare(QUEUE_NAME,false,false,false,null);
 
-        String msg = "hello";
-
-        //发送消息到队列        路由器       路由件        属性
-        channel.basicPublish("",QUEUE_NAME,null,msg.getBytes("utf-8"));
+        for (int i=1;i<=30;i++){
+            //发送消息到消息队列     交换机       路由件
+            channel.basicPublish("",QUEUE_NAME,null,("hello_mq"+i).getBytes("utf-8"));
+            System.out.println("生产者产生消息-->"+("hello mq"+i));
+            Thread.sleep(1000L);
+        }
         channel.close();
         connection.close();
     }

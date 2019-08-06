@@ -1,15 +1,13 @@
-package com.lqx.simple;
+package com.lqx.topic;
 
+import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
+@SuppressWarnings("all")
 public class Sender {
     //设置队列名称
-    public static final String QUEUE_NAME = "hello";
+    public static final String EXCHANGE_NAME = "topic";
 
     public static void main(String[] args) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
@@ -31,12 +29,12 @@ public class Sender {
         Channel channel = connection.createChannel();
 
         //声明队列
-        channel.queueDeclare(QUEUE_NAME,false,false,false,null);
+        channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
 
-        String msg = "hello";
+        String msg = "goods update";
 
         //发送消息到队列        路由器       路由件        属性
-        channel.basicPublish("",QUEUE_NAME,null,msg.getBytes("utf-8"));
+        channel.basicPublish(EXCHANGE_NAME,"ego.update.updateGoodsById.123",null,msg.getBytes("utf-8"));
         channel.close();
         connection.close();
     }
